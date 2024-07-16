@@ -6,6 +6,7 @@ import ProductForm from './components/ProductForm';
 import ProductDetail from './components/ProductDetail';
 import Connexion from './components/Connexion';
 import GestionProd from './components/Admin/GestionProd';
+import EditProductForm from './components/Admin/EditProductForm';
 // import Cart from './components/Cart';
 import NotFound from './components/NotFound';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -32,7 +33,9 @@ const App = () => (
                     <Route path="/products/:id" element={<ProductDetail />} />
                     <Route path="/connexion" element={<Connexion />} />
                     <Route path="/inscription" element={<Inscription />} />
-                    <Route path="/gestion" element={<GestionProd />} />
+                    <Route path="/addd" element={<GestionProd />} />
+                    <Route path="/gestion" element={<ProductForm />} />
+                    <Route path="/edit/:id" element={<EditProductForm />}  />
                      {/* <Route path="/cart" element={<Cart />} />  */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>

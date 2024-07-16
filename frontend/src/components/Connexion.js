@@ -33,7 +33,7 @@ const Connexion = () => {
                 <div className="col-md-6">
                     <div className="card mt-5">
                         <div className="card-body">
-                            <h2 className="text-center mb-4">Connexionn</h2>
+                            <h2 className="text-center mb-4">Connexion</h2>
                             {error && <div className="alert alert-danger">{error}</div>}
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">

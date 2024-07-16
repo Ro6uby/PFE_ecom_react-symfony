@@ -25,6 +25,30 @@ class ProductController extends AbstractController
         return $this->json($products);
     }
 
+    #[Route('/api/products/{id}', name: 'delete_product', methods: ['DELETE'])]
+    public function deleteProduct($id, EntityManagerInterface $entityManager): Response
+    {
+        $product = $entityManager->getRepository(Product::class)->find($id);
+
+        if (!$product) {
+            return new Response('Produit non trouvé', 404);
+        }
+
+        $entityManager->remove($product);
+        $entityManager->flush();
+
+        return new Response('Produit supprimé avec succès');
+    }
+
+    #[Route('/api/products/{id}', name: 'edit_product', methods: ['GET'])]
+    public function editProduct($id, EntityManagerInterface $entityManager): Response
+    {
+        $product = $entityManager->getRepository(Product::class)->find($id);
+
+
+        return $this->json($products);
+    }
+
     
     #[Route('/api/products', name: 'api_products_post', methods: ['POST'])]
     public function createProduct(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator): Response

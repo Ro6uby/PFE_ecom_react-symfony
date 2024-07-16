@@ -34,13 +34,14 @@ const Navbar = () => {
                         </div>
                         <div className="col">
                             <div>Livraison à : 
-                                <span> Paris 75000</span>
+                                <span>  </span>
                             </div>
                             <div style={{ font : 'bold' }}>Mettre à jour l'emplacement</div>
                         </div>
                     </div>
                 </a>
             </li>
+            
 
                     
                 </ul>
@@ -73,9 +74,9 @@ const Navbar = () => {
                             Dropdown
                         </a>
                         <div className="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a className="dropdown-item" href="#">Action</a>
-                            <a className="dropdown-item" href="#">Another action</a>
-                            <a className="dropdown-item" href="#">Something else here</a>
+                            <a className="dropdown-item" href="#"><i class="fa-regular fa-user"></i> Profil</a>
+                            <a className="dropdown-item" href="#"><i class="fa-solid fa-cart-shopping"></i> Vos commandes</a>
+                            <a className="dropdown-item" href="#"><i class="fa-solid fa-gear"></i> Paramètres</a>
                             <div className="dropdown-divider"></div>
                             <a className="dropdown-item" href="#">Deconnexion <i class="fa-solid fa-right-from-bracket" style={{ color: '#ffffff'}}></i></a>
                         </div>

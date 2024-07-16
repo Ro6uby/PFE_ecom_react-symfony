@@ -20,6 +20,10 @@ class Product
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+
+    #[ORM\Column(length: 255)]
+    private ?string $categorie = null;
+
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $price = null;
 
@@ -75,6 +79,17 @@ class Product
     public function setImage(string $image): static
     {
         $this->image = $image;
+
+        return $this;
+    }
+    public function getCategorie(): ?string
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(string $categorie): static
+    {
+        $this->categorie = $categorie;
 
         return $this;
     }
