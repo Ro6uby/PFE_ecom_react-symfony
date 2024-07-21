@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class UserController extends AbstractController
@@ -39,16 +40,13 @@ class UserController extends AbstractController
         $email = $data['email'] ?? null;
         $plainPassword = $data['password'] ?? null;
 
-        // Créer l'utilisateur
         $user = new User();
         $user->setNom($username);
         $user->setEmail($email);
 
-        // Hacher le mot de passe avant de le stocker
         $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setMdp($hashedPassword);
 
-        // Valider l'objet utilisateur
         $errors = $this->validator->validate($user);
 
         if (count($errors) > 0) {
@@ -62,7 +60,6 @@ class UserController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        // Sauvegarder l'utilisateur
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
@@ -73,6 +70,7 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    #[IsGranted('IS_AUTHENTICATED_ANONYMOUSLY')]
     public function login(Request $request): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -83,14 +81,12 @@ class UserController extends AbstractController
             return $this->json(['message' => 'Email ou mot de passe manquant'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Charger l'utilisateur par email
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
         if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
             return $this->json(['message' => 'Email ou mot de passe incorrect'], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Authentifier l'utilisateur
         $token = new UsernamePasswordToken($user, $password, 'main', $user->getRoles());
         $this->tokenStorage->setToken($token);
 
@@ -101,10 +97,18 @@ class UserController extends AbstractController
     }
 
     #[Route('/api/logout', name: 'api_logout', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
     public function logout(): Response
     {
         $this->tokenStorage->setToken(null);
 
         return $this->json(['message' => 'Déconnexion réussie']);
+    }
+
+    #[Route('/api/protected', name: 'api_protected', methods: ['GET'])]
+    public function protectedRoute(): Response
+    {
+        // Exemple de route protégée
+        return $this->json(['message' => 'Accès accordé à la route protégée!']);
     }
 }
