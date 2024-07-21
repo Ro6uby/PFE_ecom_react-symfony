@@ -1,5 +1,3 @@
-// src/components/Connexion.js
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +19,6 @@ const Connexion = () => {
         e.preventDefault();
         axios.post('/api/login', formData)
             .then(response => {
-                // Supposons que le JWT est renvoyé dans la réponse
                 localStorage.setItem('token', response.data.token);
                 navigate('/accueil');
             })
