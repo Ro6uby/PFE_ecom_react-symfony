@@ -18,9 +18,6 @@ const ProductList = () => {
 
 
     return (
-
-        
-
         <div className="container py-4">
 
                             <img 

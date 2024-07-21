@@ -10,7 +10,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-class User implements UserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -74,48 +74,36 @@ class User implements UserInterface
     }
 
 
-    /**
-     * @see UserInterface
-     */
     public function getRoles(): array
     {
-        // Assurez-vous que votre utilisateur a un rôle par défaut
         return ['ROLE_USER'];
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getSalt(): ?string
     {
-        // Ne pas utiliser de salt car bcrypt le fait déjà
+        // bcrypt ou argon2i n'ont pas besoin de salt
         return null;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function eraseCredentials()
     {
         // Si vous stockez des données sensibles temporairement, nettoyez-les ici
-        // $this->plainPassword = null;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
-    /**
-     * @see UserInterface
-     */
     public function getUsername(): string
     {
-        // Si votre identifiant est l'email, renvoyez-le ici
         return (string) $this->email;
+    }
+
+    // Méthode requise par PasswordAuthenticatedUserInterface
+    public function getPassword(): ?string
+    {
+        return $this->mdp;
     }
 
 

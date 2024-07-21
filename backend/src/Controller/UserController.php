@@ -1,5 +1,5 @@
 <?php
-
+// src/Controller/UserController.php
 namespace App\Controller;
 
 use App\Entity\User;
@@ -10,45 +10,47 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
-
-
 
 class UserController extends AbstractController
 {
+    private UserPasswordHasherInterface $passwordHasher;
+    private EntityManagerInterface $entityManager;
+    private ValidatorInterface $validator;
+    private TokenStorageInterface $tokenStorage;
 
-
-
-    #[Route('/user', name: 'app_user')]
-    public function index(): Response
-    {
-        return $this->render('user/index.html.twig', [
-            'controller_name' => 'UserController',
-        ]);
+    public function __construct(
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager,
+        ValidatorInterface $validator,
+        TokenStorageInterface $tokenStorage
+    ) {
+        $this->passwordHasher = $passwordHasher;
+        $this->entityManager = $entityManager;
+        $this->validator = $validator;
+        $this->tokenStorage = $tokenStorage;
     }
 
     #[Route('/api/register', name: 'api_register', methods: ['POST'])]
-    public function register(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher, ValidatorInterface $validator): Response
+    public function register(Request $request): Response
     {
-
-        // Obtenir les données de la requête
         $data = json_decode($request->getContent(), true);
         $username = $data['username'] ?? null;
         $email = $data['email'] ?? null;
-        $password = $data['password'] ?? null;
-    
+        $plainPassword = $data['password'] ?? null;
+
         // Créer l'utilisateur
         $user = new User();
         $user->setNom($username);
         $user->setEmail($email);
-        $user->setMdp($password);
-    
+
+        // Hacher le mot de passe avant de le stocker
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
+        $user->setMdp($hashedPassword);
+
         // Valider l'objet utilisateur
-        $errors = $validator->validate($user);
-    
+        $errors = $this->validator->validate($user);
+
         if (count($errors) > 0) {
             $errorsArray = [];
             foreach ($errors as $error) {
@@ -59,26 +61,15 @@ class UserController extends AbstractController
                 'errors' => $errorsArray,
             ], Response::HTTP_BAD_REQUEST);
         }
-    
+
         // Sauvegarder l'utilisateur
-        $entityManager->persist($user);
-        $entityManager->flush();
-    
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
         return $this->json([
             'status' => 'success',
             'user' => $user,
         ], Response::HTTP_CREATED);
-    }
-
-
-
-    private $entityManager;
-    private $tokenStorage;
-
-    public function __construct(EntityManagerInterface $entityManager, TokenStorageInterface $tokenStorage)
-    {
-        $this->entityManager = $entityManager;
-        $this->tokenStorage = $tokenStorage;
     }
 
     #[Route('/api/login', name: 'api_login', methods: ['POST'])]
@@ -95,12 +86,12 @@ class UserController extends AbstractController
         // Charger l'utilisateur par email
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
-        if ($password !== $user->getMdp()) {
+        if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
             return $this->json(['message' => 'Email ou mot de passe incorrect'], Response::HTTP_UNAUTHORIZED);
         }
 
         // Authentifier l'utilisateur
-        $token = new UsernamePasswordToken($user, '', ['main'], $user->getRoles());
+        $token = new UsernamePasswordToken($user, $password, 'main', $user->getRoles());
         $this->tokenStorage->setToken($token);
 
         return $this->json([
@@ -108,17 +99,6 @@ class UserController extends AbstractController
             'user' => $user->getEmail(),
         ]);
     }
-
-
-
-
-
-
-
-
-
-
-
 
     #[Route('/api/logout', name: 'api_logout', methods: ['POST'])]
     public function logout(): Response

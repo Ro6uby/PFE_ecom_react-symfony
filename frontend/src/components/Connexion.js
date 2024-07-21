@@ -1,3 +1,5 @@
+// src/components/Connexion.js
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -19,8 +21,9 @@ const Connexion = () => {
         e.preventDefault();
         axios.post('/api/login', formData)
             .then(response => {
-                // Gérer la réussite de la connexion, par exemple, sauvegarder le token
-                navigate('/accueil'); // Rediriger vers la page d'accueil ou autre route
+                // Supposons que le JWT est renvoyé dans la réponse
+                localStorage.setItem('token', response.data.token);
+                navigate('/accueil');
             })
             .catch(error => {
                 setError('Email ou mot de passe incorrect');
@@ -37,7 +40,7 @@ const Connexion = () => {
                             {error && <div className="alert alert-danger">{error}</div>}
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-3">
-                                    <label htmlFor="Email" className="form-label">Email</label>
+                                    <label htmlFor="email" className="form-label">Email</label>
                                     <input
                                         type="email"
                                         className="form-control"
@@ -47,7 +50,6 @@ const Connexion = () => {
                                         onChange={handleChange}
                                         required
                                     />
-                                    
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="password" className="form-label">Mot de passe</label>
