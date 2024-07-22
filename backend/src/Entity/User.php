@@ -1,13 +1,11 @@
 <?php
-
+// src/Entity/User.php
 namespace App\Entity;
 
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\DBAL\Types\Types;
 use Symfony\Component\Security\Core\User\UserInterface;
-
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -20,19 +18,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $nom = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: 'string', length: 255, unique: true)]
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $mdp = null;
+    private ?string $mdp = null;  // Changement de 'mdp' en 'mdp'
 
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     public function getId(): ?int
     {
         return $this->id;
     }
-
-
 
     public function getNom(): ?string
     {
@@ -46,7 +44,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -59,35 +56,43 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-   
-
-    public function getMdp(): ?string
+    public function getPassword(): ?string
     {
         return $this->mdp;
     }
 
-    public function setMdp(string $mdp): static
+    public function setPassword(string $mdp): static
     {
         $this->mdp = $mdp;
 
         return $this;
     }
 
-
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        $roles = $this->roles;
+        // Guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): static
+    {
+        $this->roles = $roles;
+
+        return $this;
     }
 
     public function getSalt(): ?string
     {
-        // bcrypt ou argon2i n'ont pas besoin de salt
+        // bcrypt or argon2i do not require a separate salt
         return null;
     }
 
     public function eraseCredentials()
     {
-        // Si vous stockez des données sensibles temporairement, nettoyez-les ici
+        // If you store any temporary, sensitive data on the user, clear it here
     }
 
     public function getUserIdentifier(): string
@@ -99,16 +104,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return (string) $this->email;
     }
-
-    // Méthode requise par PasswordAuthenticatedUserInterface
-    public function getPassword(): ?string
-    {
-        return $this->mdp;
-    }
-
-
-    
 }
-
-
-

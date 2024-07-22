@@ -1,11 +1,10 @@
+// src/components/Login.js
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './css/Connexion.css';
 import { Link } from 'react-router-dom';
 
-const Connexion = () => {
+const Login = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -20,7 +19,7 @@ const Connexion = () => {
         axios.post('http://localhost:8000/api/login', formData)
     .then(response => {
         localStorage.setItem('token', response.data.token);
-        navigate('/');
+        navigate('/accueil');
     })
     .catch(error => {
         setError('Email ou mot de passe incorrect');
@@ -73,4 +72,4 @@ const Connexion = () => {
     );
 };
 
-export default Connexion;
+export default Login;

@@ -1,5 +1,6 @@
 <?php
 // src/Controller/UserController.php
+
 namespace App\Controller;
 
 use App\Entity\User;
@@ -9,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -43,10 +45,12 @@ class UserController extends AbstractController
         $user = new User();
         $user->setNom($username);
         $user->setEmail($email);
+        $user->setRoles(["ROLE_USER"]);
+
 
         // Hacher le mot de passe avant de le stocker
         $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
-        $user->setMdp($hashedPassword);
+        $user->setPassword($hashedPassword);
 
         // Valider l'objet utilisateur
         $errors = $this->validator->validate($user);
@@ -83,15 +87,13 @@ class UserController extends AbstractController
             return $this->json(['message' => 'Email ou mot de passe manquant'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Charger l'utilisateur par email
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $email]);
 
         if (!$user || !$this->passwordHasher->isPasswordValid($user, $password)) {
             return $this->json(['message' => 'Email ou mot de passe incorrect'], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Authentifier l'utilisateur
-        $token = new UsernamePasswordToken($user, $password, 'main', $user->getRoles());
+        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
         $this->tokenStorage->setToken($token);
 
         return $this->json([

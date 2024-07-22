@@ -3,7 +3,6 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
     providers:
-        users_in_memory: { memory: null }
         app_user_provider:
             entity:
                 class: App\Entity\User
@@ -20,8 +19,10 @@ security:
             provider: app_user_provider
             json_login:
                 check_path: /api/login
-                username_path: email     # Ajoutez cette ligne
-                password_path: password   # Ajoutez cette ligne
+                username_path: email
+                password_path: password
+                success_handler: App\Security\JsonLoginSuccessHandler
+                failure_handler: App\Security\JsonLoginFailureHandler
 
         main:
             lazy: true
@@ -29,8 +30,10 @@ security:
             stateless: true
             json_login:
                 check_path: /api/login
-                username_path: email     # Ajoutez cette ligne
-                password_path: password   # Ajoutez cette ligne
+                username_path: email
+                password_path: password
+                success_handler: App\Security\JsonLoginSuccessHandler
+                failure_handler: App\Security\JsonLoginFailureHandler
 
     access_control:
         - { path: ^/admin, roles: ROLE_ADMIN }
@@ -45,7 +48,3 @@ when@test:
                 cost: 4
                 time_cost: 3
                 memory_cost: 10
-
-
-
-

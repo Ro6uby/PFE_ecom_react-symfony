@@ -14,6 +14,9 @@ import Navbar from './components/Navbar';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Inscription from './components/Inscription';
+import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+
 
 const App = () => (
     <Router>
@@ -34,7 +37,8 @@ const App = () => (
                     <Route path="/connexion" element={<Connexion />} />
                     <Route path="/inscription" element={<Inscription />} />
                     <Route path="/addd" element={<GestionProd />} />
-                    <Route path="/gestion" element={<ProductForm />} />
+                    <Route path="/gestion" element={<ProtectedRoute component={ProductForm} />} />
+                    <Route path="/login" element={<Login />} />
                     <Route path="/edit/:id" element={<EditProductForm />}  />
                      {/* <Route path="/cart" element={<Cart />} />  */}
                     <Route path="*" element={<NotFound />} />
