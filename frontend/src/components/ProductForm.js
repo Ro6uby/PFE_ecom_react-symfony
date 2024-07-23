@@ -100,7 +100,7 @@ const ProductForm = () => {
                 <h5 className="card-title">{product.Name}</h5>
                 <p className="card-text">{product.description}</p>
                 <p className="card-text"><strong>Prix:</strong> {product.price} €</p>
-                <Link to={`/edit/${product.id}`} className="btn btn-primary">
+                <Link to={`/gestion/${product.id}`} className="btn btn-primary">
                   Modifier
                 </Link>
                 <button 

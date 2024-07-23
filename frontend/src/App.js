@@ -36,12 +36,19 @@ const App = () => (
                     <Route path="/products/:id" element={<ProductDetail />} />
                     <Route path="/connexion" element={<Connexion />} />
                     <Route path="/inscription" element={<Inscription />} />
-                    <Route path="/addd" element={<GestionProd />} />
-                    <Route path="/gestion" element={<ProtectedRoute component={ProductForm} />} />
                     <Route path="/login" element={<Login />} />
-                    <Route path="/edit/:id" element={<EditProductForm />}  />
-                     {/* <Route path="/cart" element={<Cart />} />  */}
+
+                {/* PARTIE ADMIN */}
+                    <Route
+                    path="/gestion"
+                    element={<ProtectedRoute element={ProductForm} requiredRole="ROLE_ADMIN" />}
+                    />
+                    <Route path="/gestion/:id" element={<ProtectedRoute element={EditProductForm} requiredRole="ROLE_ADMIN"  />}  />
+                {/* END */}
+
                     <Route path="*" element={<NotFound />} />
+                    {/* <Route path="/addd" element={<GestionProd />} /> */}
+                     {/* <Route path="/cart" element={<Cart />} />  */}
                 </Routes>
 
     </div>

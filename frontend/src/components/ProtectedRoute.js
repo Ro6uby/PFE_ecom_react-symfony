@@ -1,22 +1,15 @@
-// components/ProtectedRoute.js
+// src/components/ProtectedRoute.js
 import React from 'react';
-import { Route, Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
-const ProtectedRoute = ({ component: Component, ...rest }) => {
-    const isAuthenticated = !!localStorage.getItem('token');
+const ProtectedRoute = ({ element: Element, requiredRole, ...rest }) => {
+    const token = localStorage.getItem('token');
+    const userRolesString = localStorage.getItem('userRoles');
+    const userRoles = userRolesString ? JSON.parse(userRolesString) : [];
 
-    return (
-        <Route
-            {...rest}
-            render={props =>
-                isAuthenticated ? (
-                    <Component {...props} />
-                ) : (
-                    <Navigate to="/login" />
-                )
-            }
-        />
-    );
+    const hasAccess = token && userRoles.includes(requiredRole);
+
+    return hasAccess ? <Element {...rest} /> : <Navigate to="/connexion" replace />;
 };
 
 export default ProtectedRoute;

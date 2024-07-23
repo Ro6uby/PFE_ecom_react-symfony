@@ -18,13 +18,25 @@ const Connexion = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         axios.post('http://localhost:8000/api/login', formData)
-    .then(response => {
-        localStorage.setItem('token', response.data.token);
-        navigate('/');
-    })
-    .catch(error => {
-        setError('Email ou mot de passe incorrect');
-    });
+            .then(response => {
+                const token = response.data.token;
+                const userRoles = response.data.user.roles;
+                const username = response.data.user.username;
+
+                localStorage.setItem('token', token);
+                localStorage.setItem('userName', username);
+                localStorage.setItem('userRoles', JSON.stringify(userRoles));
+                
+                const reloadPage = (url) => {
+                    window.location.assign(url);
+                  };
+                  reloadPage('/');
+
+                navigate('/');
+            })
+            .catch(error => {
+                setError('Email ou mot de passe incorrect');
+            });
     };
 
     return (

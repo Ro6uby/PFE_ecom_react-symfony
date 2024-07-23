@@ -1,11 +1,10 @@
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './css/ProductList.css';
-import { Link } from 'react-router-dom';
 
 const ProductList = () => {
     const [products, setProducts] = useState([]);
+    const [quantities, setQuantities] = useState({});
 
     useEffect(() => {
         axios.get('/api/products')
@@ -13,21 +12,30 @@ const ProductList = () => {
             .catch(error => console.error('Error fetching products:', error));
     }, []);
 
+    const handleQuantityChange = (productId, value) => {
+        setQuantities({
+            ...quantities,
+            [productId]: value
+        });
+    };
 
+    const handleAddToCart = (productId) => {
+        const quantity = quantities[productId] || 1; // Default to 1 if no quantity selected
+        console.log(`Ajouter ${quantity} de produit ${productId} au panier`);
+        // Vous pouvez ici ajouter le produit au panier avec la quantité sélectionnée
+    };
 
-
+    console.log(localStorage.getItem('userRoles'));
 
     return (
         <div className="container py-4">
-
-                            <img 
-                                src={`/img/banner.PNG`} 
-                                className="card-img-top" 
-                                alt={'banner'}
-                                style={{ height: '200px', objectFit: 'cover' }}
-                            />
-            
-            <br/><br/>
+            <img 
+                src={`/img/banner.PNG`} 
+                className="card-img-top" 
+                alt={'banner'}
+                style={{ height: '200px', objectFit: 'cover' }}
+            />
+            <br /><br />
             <h2 className="mb-4">Nos produits</h2>
             <div className="row">
                 {products.map(product => (
@@ -43,18 +51,25 @@ const ProductList = () => {
                                 <h5 className="card-title">{product.Name}</h5>
                                 <p className="card-text">{product.description}</p>
                                 <p className="card-text"><strong>Prix:</strong> {product.price} €</p>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="form-control mb-2"
+                                    placeholder="Quantité"
+                                    value={quantities[product.id] || 1}
+                                    onChange={(e) => handleQuantityChange(product.id, e.target.value)}
+                                />
                                 <button 
-                                    className="btn btn-primary">
+                                    className="btn btn-primary"
+                                    onClick={() => handleAddToCart(product.id)}
+                                >
                                     Ajouter au panier
                                 </button>
-                                <Link to={`/products/${product.Name}`} className="btn btn-primary">Voir détails</Link>
                             </div>
                         </div>
-                        
                     </div>
                 ))}
             </div>
-            
         </div>
     );
 };

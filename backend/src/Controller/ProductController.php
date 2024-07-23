@@ -45,8 +45,11 @@ class ProductController extends AbstractController
     {
         $product = $entityManager->getRepository(Product::class)->find($id);
 
+        if (!$product) {
+            return $this->json(['message' => 'Produit non trouvé'], Response::HTTP_NOT_FOUND);
+        }
 
-        return $this->json($products);
+        return $this->json($product);
     }
 
     
@@ -86,6 +89,30 @@ class ProductController extends AbstractController
             'status' => 'success',
             'product' => $product,
         ], Response::HTTP_CREATED);
+    }
+
+
+    #[Route('/api/products/{id}', name: 'update_product', methods: ['PUT'])]
+    public function updateProduct($id, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $product = $entityManager->getRepository(Product::class)->find($id);
+
+        if (!$product) {
+            return $this->json(['message' => 'Produit non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        $product->setName($data['Name']);
+        $product->setDescription($data['description']);
+        $product->setCategorie($data['categorie']);
+        $product->setPrice($data['price']);
+        $product->setImage($data['image']);
+
+        $entityManager->persist($product);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Produit mis à jour avec succès']);
     }
 
 }

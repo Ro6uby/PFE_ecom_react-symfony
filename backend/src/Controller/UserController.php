@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,17 +21,20 @@ class UserController extends AbstractController
     private EntityManagerInterface $entityManager;
     private ValidatorInterface $validator;
     private TokenStorageInterface $tokenStorage;
+    private JWTTokenManagerInterface $jwtManager;
 
     public function __construct(
         UserPasswordHasherInterface $passwordHasher,
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
-        TokenStorageInterface $tokenStorage
+        TokenStorageInterface $tokenStorage,
+        JWTTokenManagerInterface $jwtManager
     ) {
         $this->passwordHasher = $passwordHasher;
         $this->entityManager = $entityManager;
         $this->validator = $validator;
         $this->tokenStorage = $tokenStorage;
+        $this->jwtManager = $jwtManager;
     }
 
     #[Route('/api/register', name: 'api_register', methods: ['POST'])]
@@ -93,12 +97,18 @@ class UserController extends AbstractController
             return $this->json(['message' => 'Email ou mot de passe incorrect'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $token = new UsernamePasswordToken($user, 'main', $user->getRoles());
-        $this->tokenStorage->setToken($token);
+        // Générer le token JWT
+        $token = $this->jwtManager->create($user);
 
         return $this->json([
-            'message' => 'Connexion réussie',
-            'user' => $user->getEmail(),
+            'message' => 'Authentication successful',
+              // Ajouter le token dans la réponse
+            'user' => [
+                'token' => $token,
+                'id' => $user->getId(),
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
+            ],
         ]);
     }
 
