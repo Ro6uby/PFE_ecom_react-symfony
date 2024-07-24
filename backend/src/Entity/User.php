@@ -1,18 +1,21 @@
 <?php
 // src/Entity/User.php
+
 namespace App\Entity;
 
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
@@ -22,10 +25,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $email = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $mdp = null;  // Changement de 'mdp' en 'mdp'
+    private ?string $mdp = null;
 
     #[ORM\Column(type: 'json')]
     private array $roles = [];
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Panier::class)]
+    private Collection $paniers;
+
+    public function __construct()
+    {
+        $this->paniers = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -103,5 +114,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getUsername(): string
     {
         return (string) $this->email;
+    }
+
+    public function getPaniers(): Collection
+    {
+        return $this->paniers;
+    }
+
+    public function addPanier(Panier $panier): static
+    {
+        if (!$this->paniers->contains($panier)) {
+            $this->paniers[] = $panier;
+            $panier->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePanier(Panier $panier): static
+    {
+        if ($this->paniers->removeElement($panier)) {
+            // Set the owning side to null (unless already changed)
+            if ($panier->getUser() === $this) {
+                $panier->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }

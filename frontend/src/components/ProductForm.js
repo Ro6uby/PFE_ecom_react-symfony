@@ -5,6 +5,7 @@ import axios from 'axios';
 import './css/ProductList.css';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/ProductForm.css';
 
 const ProductForm = () => {
     const [formData, setFormData] = useState({
@@ -58,30 +59,68 @@ const ProductForm = () => {
 
     return (
         <div>
-           <h1>Ajouter un Produit</h1>
-      <form onSubmit={handleSubmit}>
+           <div className="product-form-container">
+      <h1>Ajouter un Produit</h1>
+      <form onSubmit={handleSubmit} className="product-form">
         <div className="form-group">
-          <label>Nom:</label>
-          <input type="text" name="Name" value={formData.Name} onChange={handleChange} required />
+          <label htmlFor="Name">Nom:</label>
+          <input
+            type="text"
+            id="Name"
+            name="Name"
+            value={formData.Name}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className="form-group">
-          <label>Description:</label>
-          <input type="text" name="description" value={formData.description} onChange={handleChange} required />
+          <label htmlFor="description">Description:</label>
+          <input
+            type="text"
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className="form-group">
-          <label>Categorie:</label>
-          <input type="text" name="categorie" value={formData.categorie} onChange={handleChange} required />
+          <label htmlFor="categorie">Catégorie:</label>
+          <input
+            type="text"
+            id="categorie"
+            name="categorie"
+            value={formData.categorie}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className="form-group">
-          <label>Prix:</label>
-          <input type="number" step="0.01" name="price" value={formData.price} onChange={handleChange} required />
+          <label htmlFor="price">Prix:</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            step="0.01"
+            value={formData.price}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className="form-group">
-          <label>Image URL:</label>
-          <input type="text" name="image" value={formData.image} onChange={handleChange} required />
+          <label htmlFor="image">URL de l'image:</label>
+          <input
+            type="text"
+            id="image"
+            name="image"
+            value={formData.image}
+            onChange={handleChange}
+            required
+          />
         </div>
         <button type="submit" className="submit-button">Ajouter</button>
       </form>
+    </div>
 
 
       <div className="container py-4">

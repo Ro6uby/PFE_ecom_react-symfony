@@ -16,6 +16,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min';
 import Inscription from './components/Inscription';
 import Login from './components/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import Panier from './components/Panier';
 
 
 const App = () => (
@@ -37,6 +38,7 @@ const App = () => (
                     <Route path="/connexion" element={<Connexion />} />
                     <Route path="/inscription" element={<Inscription />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/panier" element={<Panier />} />
 
                 {/* PARTIE ADMIN */}
                     <Route
