@@ -2,9 +2,13 @@
 
 namespace App\Repository;
 
+
+use App\Entity\User;
+use App\Entity\Product;
 use App\Entity\Panier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * @extends ServiceEntityRepository<Panier>
@@ -16,10 +20,35 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class PanierRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private $entityManager;
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Panier::class);
+        $this->entityManager = $entityManager;
     }
+
+
+    public function addOrUpdateProduct(User $user, Product $product, int $quantite): void
+    {
+        $panier = $this->findOneBy(['user' => $user, 'product' => $product]);
+
+        if ($panier) {
+            // Si le produit est déjà dans le panier, mettre à jour la quantité
+            $panier->setQuantite($panier->getQuantite() + $quantite);
+        } else {
+            // Sinon, ajouter un nouvel enregistrement
+            $panier = new Panier();
+            $panier->setUser($user);
+            $panier->setProduct($product);
+            $panier->setQuantite($quantite);
+        }
+
+        $this->entityManager->persist($panier);
+        $this->entityManager->flush();
+    }
+
+    
 
 //    /**
 //     * @return Panier[] Returns an array of Panier objects

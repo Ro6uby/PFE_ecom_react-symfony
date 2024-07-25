@@ -23,16 +23,18 @@ security:
                 password_path: password
                 success_handler: App\Security\JsonLoginSuccessHandler
                 failure_handler: App\Security\JsonLoginFailureHandler
+                
 
         main:
             lazy: true
             provider: app_user_provider
-            
             stateless: true
             json_login:
                 check_path: /api/login
                 username_path: email
                 password_path: password
+            entry_point: App\Security\CustomAuthenticationEntryPoint
+            
 
 
     access_control:

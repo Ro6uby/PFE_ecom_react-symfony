@@ -22,7 +22,8 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('userName'); // Enlevez le nom d'utilisateur du localStorage
-        localStorage.removeItem('userRoles'); 
+        localStorage.removeItem('userRoles');   
+        localStorage.removeItem('id');
         setIsLoggedIn(false);
         window.location.href = '/connexion';
     };

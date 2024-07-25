@@ -22,9 +22,11 @@ const Connexion = () => {
                 const token = response.data.token;
                 const userRoles = response.data.user.roles;
                 const username = response.data.user.username;
+                const id = response.data.user.id;
 
                 localStorage.setItem('token', token);
                 localStorage.setItem('userName', username);
+                localStorage.setItem('id', id);
                 localStorage.setItem('userRoles', JSON.stringify(userRoles));
                 
                 const reloadPage = (url) => {

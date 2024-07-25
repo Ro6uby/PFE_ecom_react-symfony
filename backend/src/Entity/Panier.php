@@ -4,7 +4,8 @@ namespace App\Entity;
 
 use App\Repository\PanierRepository;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: PanierRepository::class)]
 class Panier
@@ -21,6 +22,10 @@ class Panier
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: 'paniers')]
+    #[ORM\JoinColumn(name: 'product_id', referencedColumnName: 'id')]
+    private ?Product $product = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -31,9 +36,10 @@ class Panier
         return $this->quantite;
     }
 
-    public function setQuantite(int $quantite): self
+    public function setQuantite(int $quantite): static
     {
         $this->quantite = $quantite;
+
         return $this;
     }
 
@@ -42,9 +48,22 @@ class Panier
         return $this->user;
     }
 
-    public function setUser(?User $user): self
+    public function setUser(?User $user): static
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getProduct(): ?Product
+    {
+        return $this->product;
+    }
+
+    public function setProduct(?Product $product): static
+    {
+        $this->product = $product;
+
         return $this;
     }
 }
