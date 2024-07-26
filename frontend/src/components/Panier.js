@@ -1,23 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './css/Cart.css';  // Importation du fichier CSS pour les styles
 
-const initialProducts = [
-  { id: 1, name: 'Emballage Bee Wraps', price: 10.00, quantity: 1, image: '/img/beeswrap.jpg' },
-  { id: 2, name: 'Essuie Tout Lavable', price: 20.00, quantity: 2, image: '/img/essuie_tout_lavable.jpg' },
-  { id: 3, name: 'Savon Vaisselle Solide', price: 30.00, quantity: 1, image: '/img/savon_vaisselle.jpg' },
-];
-
 const Cart = () => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
+  
+  // Effectuer la demande d'obtention des produits du panier lorsque le composant se monte
+  useEffect(() => {
+    const userId = localStorage.getItem('id'); // Assurez-vous que l'utilisateur est connecté
+    if (!userId) {
+      console.error('User ID is missing. Cannot fetch cart.');
+      return;
+    }
+
+    axios.get(`/api/cart/${userId}`)
+      .then(response => {
+        // Convertir les prix en nombres, si nécessaire
+        const updatedProducts = response.data.map(product => ({
+          ...product,
+          price: parseFloat(product.price)  // Assurez-vous que le prix est un nombre
+        }));
+        setProducts(updatedProducts);
+      })
+      .catch(error => console.error('Error fetching cart data:', error));
+  }, []);
 
   const removeProduct = (id) => {
+    // Suppression du produit du panier localement
     setProducts(products.filter(product => product.id !== id));
+
+    // Suppression du produit du panier sur le serveur
+    const userId = localStorage.getItem('id');
+    axios.delete(`/api/cart/${userId}/product/${id}`)
+      .catch(error => console.error('Error removing product:', error));
   };
 
   const updateQuantity = (id, newQuantity) => {
+    if (newQuantity < 1) return;
+
+    // Mise à jour de la quantité du produit localement
     setProducts(products.map(product =>
       product.id === id ? { ...product, quantity: newQuantity } : product
     ));
+
+    // Mise à jour de la quantité du produit sur le serveur
+    const userId = localStorage.getItem('id');
+    axios.put(`/api/cart/${userId}/product/${id}`, { quantity: newQuantity })
+      .catch(error => console.error('Error updating product quantity:', error));
   };
 
   const totalPrice = products.reduce((total, product) => total + product.price * product.quantity, 0);
@@ -32,7 +61,7 @@ const Cart = () => {
           <ul>
             {products.map((product) => (
               <li key={product.id} className="cart-item">
-                <img src={product.image} alt={product.name} className="cart-item-image" />
+                <img src={`/img/${product.image}`} alt={product.name} className="cart-item-image" />
                 <span className="cart-item-name">{product.name}</span>
                 <span className="cart-item-price">{product.price.toFixed(2)} €</span>
                 <input

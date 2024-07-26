@@ -90,6 +90,66 @@ class PanierController extends AbstractController
         ], Response::HTTP_CREATED);
     }
     
+
+
+     
+    #[Route('/api/cart/{userId}', name: 'get_cart', methods: ['GET'])]
+    public function getCart(int $userId, EntityManagerInterface $entityManager) : Response
+    {
+        $paniers = $entityManager->getRepository(Panier::class)->findBy(['user' => $userId]);
+
+        $data = [];
+        foreach ($paniers as $panier) {
+            $data[] = [
+                'id' => $panier->getProduct()->getId(),
+                'name' => $panier->getProduct()->getName(),
+                'price' => $panier->getProduct()->getPrice(),
+                'quantity' => $panier->getQuantite(),
+                'image' => $panier->getProduct()->getImage()  // Assurez-vous que le produit a un champ 'image'
+            ];
+        }
+
+        return $this->json($data);  
+    }
+
+    #[Route('/api/cart/{userId}/product/{productId}', name: 'remove_from_cart', methods: ['DELETE'])]
+    public function removeProduct(int $userId, int $productId, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $panier = $entityManager->getRepository(Panier::class)->findOneBy([
+            'user' => $userId,
+            'product' => $productId
+        ]);
+
+        if (!$panier) {
+            return $this->json(['status' => 'error', 'message' => 'Product not found in cart'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager->remove($panier);
+        $entityManager->flush();
+
+        return $this->json(['status' => 'success']);
+    }
+
+    #[Route('/api/cart/{userId}/product/{productId}', name: 'update_quantity', methods: ['PUT'])]
+    public function updateQuantity(int $userId, int $productId, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $quantity = $request->request->get('quantity');
+
+        $panier = $entityManager->getRepository(Panier::class)->findOneBy([
+            'user' => $userId,
+            'product' => $productId
+        ]);
+
+        if (!$panier) {
+            return $this->json(['status' => 'error', 'message' => 'Product not found in cart'], Response::HTTP_NOT_FOUND);
+        }
+
+        $panier->setQuantite($quantity);
+        $entityManager->flush();
+
+        return $this->json(['status' => 'success']);
+    }
+
     
     
 }
