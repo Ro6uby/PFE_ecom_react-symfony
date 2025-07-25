@@ -5,28 +5,50 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/Inscription.css';  // Assuming you have styles in Register.css
 
 const Inscription = () => {
-    // Inclure `username` dans l'état initial de `formData`
     const [formData, setFormData] = useState({ username: '', email: '', password: '', confirmPassword: '' });
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    // Gérer le changement pour tous les champs, y compris `username`
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
+    const validateForm = () => {
+        const usernameRegex = /^[a-zA-Z0-9]{3,20}$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+        if (!usernameRegex.test(formData.username)) {
+            return "Le nom d'utilisateur doit comporter entre 3 et 20 caractères et ne contenir que des lettres et des chiffres.";
+        }
+
+        if (!formData.email.includes('@')) {
+            return "L'email n'est pas valide.";
+        }
+
+        if (!passwordRegex.test(formData.password)) {
+            return "Le mot de passe doit contenir au moins 8 caractères, dont une majuscule, une minuscule, un chiffre et un caractère spécial.";
+        }
+
+        if (formData.password !== formData.confirmPassword) {
+            return 'Les mots de passe ne correspondent pas.';
+        }
+
+        return null;
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (formData.password !== formData.confirmPassword) {
-            setError('Les mots de passe ne correspondent pas');
+        const errorMsg = validateForm();
+        if (errorMsg) {
+            setError(errorMsg);
             return;
         }
-        // Envoyer `formData` qui inclut `username`
+
         axios.post('/api/register', formData)
             .then(response => {
                 alert('Inscription réussie !');
-                navigate('/connexion'); // Redirect to login on success
+                navigate('/connexion');
                 setFormData({
                     username: '',
                     email: '',
@@ -48,7 +70,6 @@ const Inscription = () => {
                             <h2 className="text-center mb-4">S'inscrire</h2>
                             {error && <div className="alert alert-danger">{error}</div>}
                             <form onSubmit={handleSubmit}>
-                                {/* Champ pour le Nom d'utilisateur */}
                                 <div className="mb-3">
                                     <label htmlFor="username" className="form-label">Nom d'utilisateur</label>
                                     <input
